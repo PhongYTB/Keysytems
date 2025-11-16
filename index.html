@@ -1,77 +1,90 @@
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
 <meta charset="UTF-8">
 <title>Key Generator</title>
 <style>
 body {
-    font-family: Arial, sans-serif;
-    margin:0; height:100vh;
-    display:flex; flex-direction:column;
-    justify-content:center; align-items:center;
-    background: linear-gradient(135deg,#1e3c72,#2a5298); color:#fff;
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg,#1e3c72,#2a5298);
+  color:#fff;
 }
-h1 { font-size:2em; margin:20px 0; text-shadow:0 0 10px #fff; }
+#container {
+  background: rgba(0,0,0,0.5);
+  padding: 25px;
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
 button {
-    padding:10px 20px; font-size:16px; cursor:pointer;
-    border:none; border-radius:10px; margin:5px; color:#fff; transition:0.3s;
+  padding: 10px 20px;
+  margin: 5px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-size:16px;
+  color:#fff;
 }
-#genKey { background: linear-gradient(45deg,#ff416c,#ff4b2b); }
-#genKey:hover { transform:scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.4); }
-#copyKey { display:none; background: linear-gradient(45deg,#1fa2ff,#12d8fa); }
-#copyKey:hover { transform:scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.4); }
-#showKey {
-    margin-top:20px; font-size:18px; padding:15px; border-radius:10px;
-    background: rgba(255,255,255,0.1); text-align:center; box-shadow:0 5px 15px rgba(0,0,0,0.2);
-    min-width:250px; word-wrap:break-word;
+#genKey { background: linear-gradient(45deg,#ff416c,#ff4b2b);}
+#copyKey { background: linear-gradient(45deg,#1fa2ff,#12d8fa); display:none;}
+#keyDisplay {
+  margin-top:15px;
+  padding:10px;
+  background: rgba(255,255,255,0.1);
+  border-radius:10px;
+  word-wrap: break-word;
 }
-@media screen and (max-width:600px){ button, #showKey { width:90%; } }
 </style>
 </head>
 <body>
-<h1>Key Generator</h1>
+<div id="container">
+<h2>Key Generator</h2>
 <button id="genKey">Tạo Key</button>
 <button id="copyKey">Sao chép Key</button>
-<p id="showKey"></p>
+<div id="keyDisplay"></div>
+</div>
 
 <script>
-// Tạo deviceID duy nhất
-if(!localStorage.getItem("deviceID")){
-    localStorage.setItem("deviceID","dev"+Math.floor(Math.random()*1e8))
-}
-let deviceID = localStorage.getItem("deviceID")
-
-// Hàm hash đơn giản nhưng khó đoán
 function hash16(str){
-    let hash=0
+    let hash = 0;
     for(let i=0;i<str.length;i++){
-        hash = (hash<<5)-hash+str.charCodeAt(i)
-        hash |=0
+        hash = ((hash << 5) - hash + str.charCodeAt(i)) >>> 0;
     }
-    return Math.abs(hash).toString(16).slice(0,16)
+    return hash.toString(16).slice(0,16);
 }
 
-// Tạo key dựa trên device + date
 function generateKey(){
-    let now = new Date()
-    let today = now.getFullYear()+"-"+(now.getMonth()+1)+"-"+now.getDate()
-    return hash16(deviceID+today)
+    let device = localStorage.getItem("deviceID");
+    if(!device){
+        device = "dev"+Math.floor(Math.random()*1e8);
+        localStorage.setItem("deviceID", device);
+    }
+    let today = new Date();
+    let date = today.getFullYear()+"-"+(today.getMonth()+1)+"-"+today.getDate();
+    return hash16(device + date);
 }
 
-document.getElementById('genKey').onclick = function(){
-    let key = generateKey()
-    let expire = new Date()
-    expire.setHours(expire.getHours()+24)
-    localStorage.setItem("myKey", key)
-    localStorage.setItem("myKeyExpire", expire.toISOString())
-    document.getElementById('showKey').innerText = `Key: ${key}\nHết hạn: ${expire.toLocaleString()}`
-    document.getElementById('copyKey').style.display='inline-block'
+document.getElementById("genKey").onclick = function(){
+    let key = generateKey();
+    let expire = new Date();
+    expire.setHours(expire.getHours()+24);
+    localStorage.setItem("myKey", key);
+    localStorage.setItem("myKeyExpire", expire.toISOString());
+    document.getElementById("keyDisplay").innerText = "Key của bạn: "+key+"\nHết hạn: "+expire.toLocaleString();
+    document.getElementById("copyKey").style.display="inline-block";
 }
 
-document.getElementById('copyKey').onclick = function(){
-    let key = localStorage.getItem("myKey")
-    if(key){ navigator.clipboard.writeText(key); alert("Key đã sao chép!"); }
-    else alert("Chưa tạo key!")
+document.getElementById("copyKey").onclick = function(){
+    let key = localStorage.getItem("myKey");
+    if(key){
+        navigator.clipboard.writeText(key);
+        alert("Key đã được sao chép!");
+    }
 }
 </script>
 </body>
