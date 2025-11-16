@@ -5,58 +5,59 @@
 <title>Key Generator</title>
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background: linear-gradient(135deg, #1e1e1e, #3b3b3b);
-    color: #fff;
+    background: #1e1e1e;
+    color: white;
 }
-h1 { margin-bottom: 30px; }
 button {
     padding: 12px 25px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #3b82f6;
-    color: #fff;
+    background: #3b82f6;
     border: none;
-    border-radius: 8px;
-    transition: 0.2s;
+    border-radius: 10px;
+    color: white;
+    font-size: 16px;
 }
-button:hover { background-color: #2563eb; }
-#showKey {
-    margin-top: 25px;
-    font-size: 18px;
-    background-color: rgba(255,255,255,0.1);
-    padding: 15px;
-    border-radius: 8px;
-    text-align: center;
-    white-space: pre-line;
+#out {
+    margin-top: 20px;
+    background: rgba(255,255,255,0.1);
+    padding: 10px 15px;
+    border-radius: 10px;
 }
 </style>
 </head>
 <body>
-<h1>Key Generator</h1>
-<button id="genKey">Tạo Key</button>
-<p id="showKey"></p>
+
+<h2>Tạo Key</h2>
+<button onclick="makeKey()">Tạo Key</button>
+<div id="out"></div>
 
 <script>
-function generateKey() {
-    let today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
-    let raw = "PhongKeySystem" + today;
-    let key = btoa(raw); // Base64 đầy đủ
-    return key.slice(0,16); // 16 ký tự
+async function sha256(text) {
+    const msgBuffer = new TextEncoder().encode(text);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+    return hashHex;
 }
 
-document.getElementById('genKey').onclick = function() {
-    let key = generateKey();
-    let expire = new Date();
-    expire.setDate(expire.getDate() + 1); // Hạn 1 ngày
-    localStorage.setItem("myKey", key);
-    document.getElementById('showKey').innerText = `Key của bạn: ${key}\nHết hạn: ${expire.toLocaleString()}`;
+async function makeKey() {
+    let d = new Date();
+    let date = d.getFullYear().toString()
+        + (d.getMonth()+1).toString().padStart(2, "0")
+        + d.getDate().toString().padStart(2, "0");
+
+    let raw = "PhongKeySystem_" + date;
+    let hash = await sha256(raw);
+    let finalKey = hash.substring(0, 20);
+
+    document.getElementById("out").innerHTML = "Key hôm nay: " + finalKey;
 }
 </script>
+
 </body>
 </html>
