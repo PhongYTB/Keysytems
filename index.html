@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Key Generator</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #1e1e1e;
+    color: #fff;
+}
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+    background-color: #3b82f6;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+}
+#showKey {
+    margin-top: 20px;
+    font-size: 18px;
+    white-space: pre-line;
+}
+</style>
+</head>
+<body>
+<h1>Key Generator</h1>
+<button id="genKey">Tạo Key</button>
+<p id="showKey"></p>
+
+<script>
+function generateKey() {
+    let device = navigator.userAgent; // thông tin thiết bị
+    let today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    let raw = device + today;
+    let key = btoa(raw).slice(0,16); // 16 ký tự
+    return key;
+}
+
+document.getElementById('genKey').onclick = function() {
+    let key = generateKey();
+    let expire = new Date();
+    expire.setDate(expire.getDate() + 1); // key hết hạn sau 1 ngày
+    localStorage.setItem("myKey", key);
+    document.getElementById('showKey').innerText = `Key của bạn: ${key}\nHết hạn: ${expire.toLocaleString()}`;
+}
+</script>
+</body>
+</html>
