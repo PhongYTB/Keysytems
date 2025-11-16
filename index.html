@@ -5,59 +5,70 @@
 <title>Key Generator</title>
 <style>
 body {
-    font-family: Arial;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: #1e1e1e;
-    color: white;
+    font-family: Arial, sans-serif;
+    margin:0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: #fff;
+    transition: background 0.5s;
+}
+h1 {
+    font-size:2em;
+    margin-bottom:20px;
+    text-shadow: 0 0 10px #fff;
 }
 button {
     padding: 12px 25px;
-    background: #3b82f6;
-    border: none;
-    border-radius: 10px;
-    color: white;
     font-size: 16px;
+    cursor: pointer;
+    border:none;
+    border-radius:10px;
+    margin:5px;
+    color:#fff;
+    transition: 0.3s;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
-#out {
-    margin-top: 20px;
+#genKey { background: linear-gradient(45deg,#ff416c,#ff4b2b);}
+#genKey:hover { transform:scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.4);}
+#showKey {
+    margin-top:20px;
+    font-size:18px;
+    padding:15px;
+    border-radius:10px;
     background: rgba(255,255,255,0.1);
-    padding: 10px 15px;
-    border-radius: 10px;
+    text-align:center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    width:90%;
+    max-width:400px;
+    word-wrap:break-word;
 }
 </style>
 </head>
 <body>
-
-<h2>Tạo Key</h2>
-<button onclick="makeKey()">Tạo Key</button>
-<div id="out"></div>
+<h1>Key Generator</h1>
+<button id="genKey">Tạo Key</button>
+<p id="showKey"></p>
 
 <script>
-async function sha256(text) {
-    const msgBuffer = new TextEncoder().encode(text);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
-    return hashHex;
+function generateKey() {
+    let today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    let raw = "PhongKeySystem" + today;
+    let key = btoa(raw);
+    return key.slice(0,16); // 16 ký tự
 }
 
-async function makeKey() {
-    let d = new Date();
-    let date = d.getFullYear().toString()
-        + (d.getMonth()+1).toString().padStart(2, "0")
-        + d.getDate().toString().padStart(2, "0");
-
-    let raw = "PhongKeySystem_" + date;
-    let hash = await sha256(raw);
-    let finalKey = hash.substring(0, 20);
-
-    document.getElementById("out").innerHTML = "Key hôm nay: " + finalKey;
+document.getElementById('genKey').onclick = function() {
+    let key = generateKey();
+    let expire = new Date();
+    expire.setDate(expire.getDate() + 1);
+    localStorage.setItem("myKey", key);
+    localStorage.setItem("myKeyExpire", expire.toISOString());
+    document.getElementById('showKey').innerText = `Key của bạn: ${key}\nHết hạn: ${expire.toLocaleString()}`;
 }
 </script>
-
 </body>
 </html>
