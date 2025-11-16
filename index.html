@@ -14,9 +14,7 @@ body {
     background: linear-gradient(135deg, #1e1e1e, #3b3b3b);
     color: #fff;
 }
-h1 {
-    margin-bottom: 30px;
-}
+h1 { margin-bottom: 30px; }
 button {
     padding: 12px 25px;
     font-size: 16px;
@@ -27,9 +25,7 @@ button {
     border-radius: 8px;
     transition: 0.2s;
 }
-button:hover {
-    background-color: #2563eb;
-}
+button:hover { background-color: #2563eb; }
 #showKey {
     margin-top: 25px;
     font-size: 18px;
@@ -49,9 +45,9 @@ button:hover {
 <script>
 function generateKey() {
     let today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
-    let raw = "PhongKeySystem" + today; // Cùng công thức Lua
-    let key = btoa(raw).slice(0,16); // 16 ký tự
-    return key;
+    let raw = "PhongKeySystem" + today;
+    let key = btoa(raw); // Base64 đầy đủ
+    return key.slice(0,16); // 16 ký tự
 }
 
 document.getElementById('genKey').onclick = function() {
