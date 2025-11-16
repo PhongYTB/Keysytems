@@ -11,22 +11,32 @@ body {
     align-items: center;
     justify-content: center;
     height: 100vh;
-    background-color: #1e1e1e;
+    background: linear-gradient(135deg, #1e1e1e, #3b3b3b);
     color: #fff;
 }
+h1 {
+    margin-bottom: 30px;
+}
 button {
-    padding: 10px 20px;
+    padding: 12px 25px;
     font-size: 16px;
-    margin-top: 20px;
     cursor: pointer;
     background-color: #3b82f6;
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+button:hover {
+    background-color: #2563eb;
 }
 #showKey {
-    margin-top: 20px;
+    margin-top: 25px;
     font-size: 18px;
+    background-color: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
     white-space: pre-line;
 }
 </style>
@@ -38,9 +48,8 @@ button {
 
 <script>
 function generateKey() {
-    let device = navigator.userAgent; // thông tin thiết bị
     let today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
-    let raw = device + today;
+    let raw = "PhongKeySystem" + today; // Cùng công thức Lua
     let key = btoa(raw).slice(0,16); // 16 ký tự
     return key;
 }
@@ -48,7 +57,7 @@ function generateKey() {
 document.getElementById('genKey').onclick = function() {
     let key = generateKey();
     let expire = new Date();
-    expire.setDate(expire.getDate() + 1); // key hết hạn sau 1 ngày
+    expire.setDate(expire.getDate() + 1); // Hạn 1 ngày
     localStorage.setItem("myKey", key);
     document.getElementById('showKey').innerText = `Key của bạn: ${key}\nHết hạn: ${expire.toLocaleString()}`;
 }
