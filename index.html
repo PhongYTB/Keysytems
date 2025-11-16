@@ -14,7 +14,6 @@ body {
     align-items:center;
     background: linear-gradient(135deg, #1e3c72, #2a5298);
     color: #fff;
-    transition: background 0.5s;
 }
 h1 {
     font-size:2em;
@@ -34,6 +33,8 @@ button {
 }
 #genKey { background: linear-gradient(45deg,#ff416c,#ff4b2b);}
 #genKey:hover { transform:scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.4);}
+#copyKey { background: linear-gradient(45deg,#1fa2ff,#12d8fa);}
+#copyKey:hover { transform:scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.4);}
 #showKey {
     margin-top:20px;
     font-size:18px;
@@ -46,19 +47,24 @@ button {
     max-width:400px;
     word-wrap:break-word;
 }
+@media screen and (max-width:600px){
+    button, #showKey { width:90%; }
+}
 </style>
 </head>
 <body>
 <h1>Key Generator</h1>
 <button id="genKey">Tạo Key</button>
+<button id="copyKey">Sao chép Key</button>
 <p id="showKey"></p>
 
 <script>
 function generateKey() {
-    let today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    // Giữ công thức cũ để Lua dùng được
+    let today = new Date().toISOString().slice(0,10);
     let raw = "PhongKeySystem" + today;
     let key = btoa(raw);
-    return key.slice(0,16); // 16 ký tự
+    return key.slice(0,16);
 }
 
 document.getElementById('genKey').onclick = function() {
@@ -68,6 +74,16 @@ document.getElementById('genKey').onclick = function() {
     localStorage.setItem("myKey", key);
     localStorage.setItem("myKeyExpire", expire.toISOString());
     document.getElementById('showKey').innerText = `Key của bạn: ${key}\nHết hạn: ${expire.toLocaleString()}`;
+}
+
+document.getElementById('copyKey').onclick = function() {
+    let key = localStorage.getItem("myKey");
+    if(key){
+        navigator.clipboard.writeText(key);
+        alert("Key đã được sao chép!");
+    } else {
+        alert("Chưa tạo key!");
+    }
 }
 </script>
 </body>
