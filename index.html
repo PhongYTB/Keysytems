@@ -63,11 +63,9 @@ let mode = "Mobile";
 function setMode(m) { mode = m; alert("Chế độ: " + m); }
 
 function generateKey() {
-    // Giữ nguyên công thức Lua cũ
-    let today = new Date().toISOString().slice(0,10);
-    let raw = "PhongKeySystem" + today;
-    let key = btoa(raw);
-    return key.slice(0,16);
+    let today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+    let raw = "PhongKeySystem" + today; // 16 ký tự đầu của key
+    return raw.slice(0,16);
 }
 
 document.getElementById('genKey').onclick = function() {
