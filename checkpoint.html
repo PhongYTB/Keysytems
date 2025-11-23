@@ -14,25 +14,31 @@ h1 {color:red;margin-bottom:20px;}
 </head>
 <body>
 <h1>Checkpoint</h1>
-<p id="message">Please click Get Key first</p>
+<p id="message">Please click get key link first.</p>
+<a id="bypassLink" class="btn" href="https://direct-link.net/1450725/tKhX3dciJGda" target="_blank">Go to Bypass Link</a>
 <button class="btn" id="continueBtn" style="display:none;" onclick="goKey()">Continue</button>
 
 <script>
-const bypassTime = localStorage.getItem('bypassTime');
-const now = Date.now();
+let urlParams = new URLSearchParams(window.location.search);
+let id = urlParams.get('id') || ('ID_' + Math.floor(Math.random()*1000000));
 
-if(bypassTime && now - bypassTime < 5*60*1000){ // trong 5 phút
+const now = Date.now();
+let checkpointTime = localStorage.getItem('checkpoint_' + id);
+
+if(checkpointTime && now - checkpointTime < 10*60*1000){
   document.getElementById('message').innerText = "Checkpoint complete!";
-  // tạo ID riêng
-  const uniqueID = 'ID_' + Math.floor(Math.random()*1000000);
-  localStorage.setItem('keyID', uniqueID);
   document.getElementById('continueBtn').style.display = "inline-block";
-} else {
+  localStorage.setItem('checkpoint_' + id, checkpointTime);
+}else{
   document.getElementById('message').innerText = "The link cannot be bypassed.";
 }
 
+document.getElementById('bypassLink').addEventListener('click', () => {
+  localStorage.setItem('checkpoint_' + id, Date.now());
+});
+
 function goKey(){
-  window.location.href = "key.html";
+  window.location.href = "key.html?id=" + id;
 }
 </script>
 </body>
