@@ -1,50 +1,88 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Key System</title>
+<meta charset="UTF8">
+<title>Phong Hub Key System</title>
 <style>
-body {margin:0;font-family:Arial,sans-serif;background:black;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;text-align:center;}
-h1 {color:red;margin-bottom:20px;}
-.key-box {background:red;color:white;padding:15px 20px;border-radius:10px;font-size:18px;margin-bottom:15px;user-select:all;}
-.btn {background:white;color:red;padding:12px 25px;border:none;border-radius:10px;font-size:16px;cursor:pointer;margin:5px;}
-.btn:hover {background:red;color:white;}
+  body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    color: white;
+    font-family: Arial;
+    text-align: center;
+  }
+  .box {
+    margin-top: 120px;
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    display: inline-block;
+    width: 300px;
+  }
+  button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    background: red;
+    color: white;
+    font-size: 15px;
+  }
 </style>
 </head>
 <body>
-<h1>Phong Hub Key System</h1>
-<div id="keyBox" class="key-box">Loading...</div>
-<button class="btn" onclick="copyKey()">Copy Key</button>
+
+<div class="box">
+  <h2>Phong Hub Key</h2>
+  <div id="status">Đang kiểm tra…</div>
+  <div id="keyBox" style="margin-top:20px; display:none;">
+    <p id="keyText"></p>
+    <button onclick="copyKey()">Copy</button>
+  </div>
+</div>
 
 <script>
-let urlParams = new URLSearchParams(window.location.search);
-let id = urlParams.get('id');
-let checkpointTime = localStorage.getItem('checkpoint_' + id);
-const now = Date.now();
 
-if(!id || !checkpointTime || now - checkpointTime > 10*60*1000){
-  document.body.innerHTML = "<h1>Anti Bypass from Phong</h1>";
-}else{
-  fetch('keys.json')
-    .then(res => res.json())
-    .then(data => {
-      const keys = data.keys;
-      const key = keys[Math.floor(Math.random()*keys.length)];
-      document.getElementById('keyBox').innerText = key;
-    });
+// reset sạch dữ liệu key mỗi lần mở
+localStorage.removeItem("lastKey");
+
+// lấy checkpointTime
+const savedTime = localStorage.getItem("checkpointTime");
+
+// nếu không có checkpoint → anti cheat
+if(!savedTime){
+    document.getElementById("status").innerText = "Anti cheat from Phong";
+} else {
+    const now = Date.now();
+    const diff = now - Number(savedTime);
+
+    // quá 60s → anti cheat
+    if(diff > 60000){
+        document.getElementById("status").innerText = "Anti cheat from Phong";
+    } else {
+        loadKey();
+    }
 }
 
-// copy key
+// load key ngẫu nhiên từ keys.json
+function loadKey(){
+    fetch("keys.json")
+      .then(r => r.json())
+      .then(list => {
+          const k = list[Math.floor(Math.random() * list.length)];
+          localStorage.setItem("lastKey", k);
+          document.getElementById("status").innerText = "Key của bạn";
+          document.getElementById("keyText").innerText = k;
+          document.getElementById("keyBox").style.display = "block";
+      });
+}
+
 function copyKey(){
-  const key = document.getElementById('keyBox').innerText;
-  navigator.clipboard.writeText(key).then(() => alert('Copied: '+key));
+    const k = document.getElementById("keyText").innerText;
+    navigator.clipboard.writeText(k);
 }
 
-// reset sau 1 phút
-setTimeout(() => {
-  document.body.innerHTML = "<h1>Anti Bypass from Phong</h1>";
-}, 60000);
 </script>
+
 </body>
 </html>
