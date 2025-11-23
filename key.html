@@ -10,51 +10,69 @@ h1 {color:red;margin-bottom:20px;}
 .key-box {background:red;color:white;padding:15px 20px;border-radius:10px;font-size:18px;margin-bottom:15px;user-select:all;}
 .btn {background:white;color:red;padding:12px 25px;border:none;border-radius:10px;font-size:16px;cursor:pointer;margin:5px;}
 .btn:hover {background:red;color:white;}
+#info {margin-top:15px;font-size:16px;}
 </style>
 </head>
 <body>
 <h1>Phong Hub Key System</h1>
 <div id="keyBox" class="key-box">Loading...</div>
 <button class="btn" onclick="copyKey()">Copy Key</button>
+<div id="info"></div>
 
 <script>
-// Lấy ID từ URL
 let urlParams = new URLSearchParams(window.location.search);
 let id = urlParams.get('id');
+const KEY_DURATION = 90*1000; // 1 phút 30 giây
 
-// Kiểm tra ID tồn tại trong localStorage
-const savedTime = localStorage.getItem('key_' + id);
-const now = Date.now();
-
-if(!id || (savedTime && now - savedTime > 90*1000)){
+if(!id){
     document.body.innerHTML = "<h1>Anti Cheat from Phong</h1>";
 } else {
-    // Lưu thời gian hiện tại nếu chưa có
-    if(!savedTime) localStorage.setItem('key_' + id, now);
-
-    // Load keys từ keys.json
     fetch('keys.json')
     .then(res => res.json())
     .then(data => {
         const keys = data.keys;
-        const key = keys[Math.floor(Math.random() * keys.length)];
+        let stored = localStorage.getItem('key_' + id);
+        let key, startTime;
+
+        if(!stored){
+            key = keys[Math.floor(Math.random()*keys.length)];
+            startTime = Date.now();
+            localStorage.setItem('key_' + id, JSON.stringify({key:key,time:startTime}));
+        } else {
+            const parsed = JSON.parse(stored);
+            key = parsed.key;
+            startTime = parsed.time;
+        }
+
         document.getElementById('keyBox').innerText = key;
+
+        const END_TIME = startTime + 24*60*60*1000;
+        const infoDiv = document.getElementById('info');
+
+        function updateTime(){
+            const remaining = END_TIME - Date.now();
+            if(remaining <=0){
+                infoDiv.innerText = "Key expired. Please get new key.";
+            } else {
+                const h = Math.floor(remaining/3600000);
+                const m = Math.floor((remaining%3600000)/60000);
+                const s = Math.floor((remaining%60000)/1000);
+                infoDiv.innerText = `Time left: ${h}h ${m}m ${s}s`;
+            }
+        }
+        updateTime();
+        setInterval(updateTime,1000);
+
+        setTimeout(()=>{
+            localStorage.removeItem('key_' + id);
+            document.body.innerHTML = "<h1>Anti Cheat from Phong</h1>";
+        }, KEY_DURATION);
+
+        window.copyKey = function(){
+            navigator.clipboard.writeText(key).then(()=>alert('Copied: '+key));
+        }
     })
-    .catch(() => {
-        document.getElementById('keyBox').innerText = "Error loading keys!";
-    });
-
-    // Copy key
-    function copyKey(){
-        const key = document.getElementById('keyBox').innerText;
-        navigator.clipboard.writeText(key).then(() => alert('Copied: '+key));
-    }
-
-    // Xoá key/localStorage sau 1 phút 30 giây
-    setTimeout(() => {
-        localStorage.removeItem('key_' + id);
-        document.body.innerHTML = "<h1>Anti Cheat from Phong</h1>";
-    }, 90*1000);
+    .catch(()=> document.getElementById('keyBox').innerText = "Error loading keys!");
 }
 </script>
 </body>
