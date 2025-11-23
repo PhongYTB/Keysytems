@@ -9,33 +9,17 @@ body {margin:0;font-family:Arial,sans-serif;background:black;color:white;display
 h1 {color:red;margin-bottom:20px;}
 .btn {background:white;color:red;padding:12px 25px;border:none;border-radius:10px;font-size:16px;cursor:pointer;margin:5px;}
 .btn:hover {background:red;color:white;}
-#message {margin-bottom:20px;}
 </style>
 </head>
 <body>
 <h1>Checkpoint</h1>
-<p id="message">Please click get key link first.</p>
-<a id="bypassLink" class="btn" href="https://direct-link.net/1450725/tKhX3dciJGda" target="_blank">Go to Bypass Link</a>
-<button class="btn" id="continueBtn" style="display:none;" onclick="goKey()">Continue</button>
+<p>Checkpoint ready!</p>
+<button class="btn" id="continueBtn" onclick="goKey()">Continue</button>
 
 <script>
 let urlParams = new URLSearchParams(window.location.search);
 let id = urlParams.get('id') || ('ID_' + Math.floor(Math.random()*1000000));
-
-const now = Date.now();
-let checkpointTime = localStorage.getItem('checkpoint_' + id);
-
-if(checkpointTime && now - checkpointTime < 10*60*1000){
-  document.getElementById('message').innerText = "Checkpoint complete!";
-  document.getElementById('continueBtn').style.display = "inline-block";
-  localStorage.setItem('checkpoint_' + id, checkpointTime);
-}else{
-  document.getElementById('message').innerText = "The link cannot be bypassed.";
-}
-
-document.getElementById('bypassLink').addEventListener('click', () => {
-  localStorage.setItem('checkpoint_' + id, Date.now());
-});
+localStorage.setItem('checkpoint_' + id, Date.now());
 
 function goKey(){
   window.location.href = "key.html?id=" + id;
