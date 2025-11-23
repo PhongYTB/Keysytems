@@ -5,43 +5,54 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Checkpoint</title>
 <style>
-body {margin:0;font-family:Arial;background:black;color:white;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;}
+body {margin:0;font-family:Arial,sans-serif;background:black;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;text-align:center;}
 h1 {color:red;margin-bottom:20px;}
-.btn {background:white;color:red;padding:12px 25px;border:none;border-radius:10px;font-size:16px;cursor:pointer;}
+.btn {background:white;color:red;padding:12px 25px;border:none;border-radius:10px;font-size:16px;cursor:pointer;margin:5px;}
 .btn:hover {background:red;color:white;}
+#message {margin-bottom:20px;}
 </style>
 </head>
 <body>
-
 <h1>Checkpoint</h1>
-<p id="msg">Processing...</p>
-<button id="btn" class="btn" style="display:none;" onclick="next()">Continue</button>
+<p id="message">Processing...</p>
+<button class="btn" id="continueBtn" style="display:none;" onclick="goKey()">Continue</button>
 
 <script>
-// Lấy thời gian checkpoint trong localStorage
-let saved = localStorage.getItem('checkpoint_time');
-let now = Date.now();
-
-// Nếu chưa có thì đặt thời gian hiện tại
-if(!saved){
-    localStorage.setItem('checkpoint_time', now);
-    saved = now;
+// Sinh ID riêng nếu chưa có
+let urlParams = new URLSearchParams(window.location.search);
+let id = urlParams.get('id');
+if(!id){
+    id = 'id_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+    window.history.replaceState({}, '', '?id=' + id);
 }
 
-// Kiểm tra 5 phút
-if(now - saved < 5 * 60 * 1000){
-    document.getElementById('msg').innerText = "Checkpoint complete!";
-    document.getElementById('btn').style.display = "inline-block";
+// Lấy checkpointTime từ localStorage
+const checkpointTime = localStorage.getItem('checkpoint_' + id);
+const now = Date.now();
+
+if(!checkpointTime){
+    // Chưa có → hiển thị Continue
+    document.getElementById('message').innerText = "Checkpoint ready!";
+    document.getElementById('continueBtn').style.display = "inline-block";
+} else if(now - checkpointTime < 5*60*1000){
+    document.getElementById('message').innerText = "Checkpoint ready!";
+    document.getElementById('continueBtn').style.display = "inline-block";
 } else {
-    document.getElementById('msg').innerText = "Anti Cheat from Phong";
-    document.getElementById('btn').style.display = "none";
+    // Hết hạn
+    document.getElementById('message').innerText = "Anti Cheat from Phong";
+    document.getElementById('continueBtn').style.display = "none";
 }
 
-// Qua trang key.html
-function next(){
-    window.location.href = "key.html";
+// Khi nhấn Continue → lưu thời gian và chuyển sang key.html
+function goKey(){
+    localStorage.setItem('checkpoint_' + id, Date.now());
+    window.location.href = "key.html?id=" + id;
 }
+
+// Tự động xoá dữ liệu checkpoint sau 5 phút
+setTimeout(() => {
+    localStorage.removeItem('checkpoint_' + id);
+}, 5*60*1000);
 </script>
-
 </body>
 </html>
