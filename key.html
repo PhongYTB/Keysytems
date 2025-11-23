@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
@@ -20,9 +20,8 @@ h1 {color:red;margin-bottom:20px;}
 <script>
 let urlParams = new URLSearchParams(window.location.search);
 let id = urlParams.get('id');
-
-const now = Date.now();
 let checkpointTime = localStorage.getItem('checkpoint_' + id);
+const now = Date.now();
 
 if(!id || !checkpointTime || now - checkpointTime > 10*60*1000){
   document.body.innerHTML = "<h1>Anti Bypass from Phong</h1>";
