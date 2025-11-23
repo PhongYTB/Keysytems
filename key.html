@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Get Key</title>
+<title>Key System</title>
 <style>
 body {margin:0;font-family:Arial,sans-serif;background:black;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;text-align:center;}
 h1 {color:red;margin-bottom:20px;}
@@ -18,15 +18,15 @@ h1 {color:red;margin-bottom:20px;}
 <button class="btn" onclick="copyKey()">Copy Key</button>
 
 <script>
-// Kiểm tra checkpoint
-const checkpoint = localStorage.getItem('keyID');
-const bypassTime = localStorage.getItem('bypassTime');
-const now = Date.now();
+let urlParams = new URLSearchParams(window.location.search);
+let id = urlParams.get('id');
 
-if(!checkpoint || !bypassTime || now - bypassTime > 5*60*1000){
+const now = Date.now();
+let checkpointTime = localStorage.getItem('checkpoint_' + id);
+
+if(!id || !checkpointTime || now - checkpointTime > 10*60*1000){
   document.body.innerHTML = "<h1>Anti Bypass from Phong</h1>";
-} else {
-  // lấy key random từ keys.json
+}else{
   fetch('keys.json')
     .then(res => res.json())
     .then(data => {
