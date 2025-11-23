@@ -7,16 +7,19 @@
 <style>
 body {margin:0;font-family:Arial,sans-serif;background:black;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;}
 h1 {color:red;margin-bottom:30px;text-align:center;}
-.btn {background:red;color:white;padding:15px 30px;border:none;border-radius:10px;font-size:18px;cursor:pointer;text-decoration:none;}
+.btn {background:red;color:white;padding:15px 30px;border:none;border-radius:10px;font-size:18px;cursor:pointer;text-decoration:none;margin:10px;}
 .btn:hover {background:white;color:red;}
 </style>
 </head>
 <body>
 <h1>Phong Hub Key System</h1>
-<!-- Nút dẫn tới link vượt -->
-<a href="checkpoint.html" class="btn">Get Key</a>
+<a href="https://direct-link.net/1450725/tKhX3dciJGda" class="btn" target="_blank" onclick="setBypass()">Get Key</a>
 
-<!-- Nếu muốn, có thể thêm link bypass trực tiếp -->
-<a href="YOUR_LINK_HERE" class="btn" target="_blank" style="margin-top:10px;">Bypass Link</a>
+<script>
+// Lưu thời gian click Get Key để checkpoint kiểm tra
+function setBypass() {
+  localStorage.setItem('bypassTime', Date.now());
+}
+</script>
 </body>
 </html>
