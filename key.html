@@ -18,17 +18,15 @@ h1 {color:red;margin-bottom:20px;}
 <button class="btn" onclick="copyKey()">Copy Key</button>
 
 <script>
-// Kiểm tra checkpoint 5 phút
-const checkpoint = localStorage.getItem('checkpointTime');
+// Kiểm tra checkpoint
+const checkpoint = localStorage.getItem('keyID');
+const bypassTime = localStorage.getItem('bypassTime');
 const now = Date.now();
-if(!checkpoint || now - checkpoint > 5*60*1000){
+
+if(!checkpoint || !bypassTime || now - bypassTime > 5*60*1000){
   document.body.innerHTML = "<h1>Anti Bypass from Phong</h1>";
 } else {
-  // Tạo ID riêng
-  const uniqueID = 'ID_' + Math.floor(Math.random()*1000000);
-  localStorage.setItem('keyID', uniqueID);
-
-  // Lấy key random từ JSON
+  // lấy key random từ keys.json
   fetch('keys.json')
     .then(res => res.json())
     .then(data => {
@@ -38,18 +36,16 @@ if(!checkpoint || now - checkpoint > 5*60*1000){
     });
 }
 
-// Copy key
+// copy key
 function copyKey(){
   const key = document.getElementById('keyBox').innerText;
-  navigator.clipboard.writeText(key).then(() => {
-    alert('Copied: ' + key);
-  });
+  navigator.clipboard.writeText(key).then(() => alert('Copied: '+key));
 }
 
-// Hết hạn 1 phút
+// reset sau 1 phút
 setTimeout(() => {
   document.body.innerHTML = "<h1>Anti Bypass from Phong</h1>";
-}, 60000); // 1 phút
+}, 60000);
 </script>
 </body>
 </html>
