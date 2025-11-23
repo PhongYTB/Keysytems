@@ -18,33 +18,33 @@ h1 {color:red;margin-bottom:20px;}
 <button class="btn" id="continueBtn" style="display:none;" onclick="goKey()">Continue</button>
 
 <script>
-// Lấy ID từ URL hoặc sinh ID mới nếu không có
+// Lấy ID từ URL
 let urlParams = new URLSearchParams(window.location.search);
 let id = urlParams.get('id');
-if(!id){
-    id = 'ID_' + Math.floor(Math.random()*1000000);
-    window.history.replaceState(null,null, 'checkpoint.html?id=' + id);
-}
 
-// Kiểm tra thời gian lưu trữ cho ID
-const now = Date.now();
-let savedTime = localStorage.getItem('checkpoint_' + id);
+// Lấy danh sách ID hợp lệ từ localStorage
+const validIDs = JSON.parse(localStorage.getItem('validIDs') || '[]');
 
-// Nếu chưa lưu lần nào, lưu thời gian hiện tại
-if(!savedTime){
-    localStorage.setItem('checkpoint_' + id, now);
-    savedTime = now;
-}
-
-// Nếu chưa quá 5 phút → hiển thị Continue
-if(now - savedTime < 5*60*1000){
-    document.getElementById('message').innerText = "Checkpoint complete!";
-    document.getElementById('continueBtn').style.display = "inline-block";
-} else {
+// Kiểm tra ID hợp lệ
+if(!id || !validIDs.includes(id)){
     document.getElementById('message').innerText = "Anti Bypass from Phong";
     document.getElementById('continueBtn').style.display = "none";
+} else {
+    const now = Date.now();
+    const savedTime = parseInt(localStorage.getItem('checkpoint_' + id) || now);
+    // Lưu thời gian nếu chưa có
+    if(!localStorage.getItem('checkpoint_' + id)) localStorage.setItem('checkpoint_' + id, now);
+    // Kiểm tra hết hạn 5 phút
+    if(now - savedTime < 5*60*1000){
+        document.getElementById('message').innerText = "Checkpoint complete!";
+        document.getElementById('continueBtn').style.display = "inline-block";
+    } else {
+        document.getElementById('message').innerText = "Anti Bypass from Phong";
+        document.getElementById('continueBtn').style.display = "none";
+    }
 }
 
+// Chuyển tiếp sang key.html với cùng ID
 function goKey(){
     window.location.href = "key.html?id=" + id;
 }
