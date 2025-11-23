@@ -9,20 +9,44 @@ body {margin:0;font-family:Arial,sans-serif;background:black;color:white;display
 h1 {color:red;margin-bottom:20px;}
 .btn {background:white;color:red;padding:12px 25px;border:none;border-radius:10px;font-size:16px;cursor:pointer;margin:5px;}
 .btn:hover {background:red;color:white;}
+#message {margin-bottom:20px;}
 </style>
 </head>
 <body>
 <h1>Checkpoint</h1>
-<p>Checkpoint ready!</p>
-<button class="btn" id="continueBtn" onclick="goKey()">Continue</button>
+<p id="message">Processing...</p>
+<button class="btn" id="continueBtn" style="display:none;" onclick="goKey()">Continue</button>
 
 <script>
+// Lấy ID từ URL hoặc sinh ID mới nếu không có
 let urlParams = new URLSearchParams(window.location.search);
-let id = urlParams.get('id') || ('ID_' + Math.floor(Math.random()*1000000));
-localStorage.setItem('checkpoint_' + id, Date.now());
+let id = urlParams.get('id');
+if(!id){
+    id = 'ID_' + Math.floor(Math.random()*1000000);
+    window.history.replaceState(null,null, 'checkpoint.html?id=' + id);
+}
+
+// Kiểm tra thời gian lưu trữ cho ID
+const now = Date.now();
+let savedTime = localStorage.getItem('checkpoint_' + id);
+
+// Nếu chưa lưu lần nào, lưu thời gian hiện tại
+if(!savedTime){
+    localStorage.setItem('checkpoint_' + id, now);
+    savedTime = now;
+}
+
+// Nếu chưa quá 5 phút → hiển thị Continue
+if(now - savedTime < 5*60*1000){
+    document.getElementById('message').innerText = "Checkpoint complete!";
+    document.getElementById('continueBtn').style.display = "inline-block";
+} else {
+    document.getElementById('message').innerText = "Anti Bypass from Phong";
+    document.getElementById('continueBtn').style.display = "none";
+}
 
 function goKey(){
-  window.location.href = "key.html?id=" + id;
+    window.location.href = "key.html?id=" + id;
 }
 </script>
 </body>
