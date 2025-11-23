@@ -2,90 +2,21 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Key Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phong Hub Key System</title>
 <style>
-body {
-  margin:0;
-  height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg,#1e3c72,#2a5298);
-  color:#fff;
-}
-#container {
-  background: rgba(0,0,0,0.5);
-  padding: 25px;
-  border-radius: 15px;
-  text-align: center;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-}
-button {
-  padding: 10px 20px;
-  margin: 5px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:16px;
-  color:#fff;
-}
-#genKey { background: linear-gradient(45deg,#ff416c,#ff4b2b);}
-#copyKey { background: linear-gradient(45deg,#1fa2ff,#12d8fa); display:none;}
-#keyDisplay {
-  margin-top:15px;
-  padding:10px;
-  background: rgba(255,255,255,0.1);
-  border-radius:10px;
-  word-wrap: break-word;
-}
+body {margin:0;font-family:Arial,sans-serif;background:black;color:white;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;}
+h1 {color:red;margin-bottom:30px;text-align:center;}
+.btn {background:red;color:white;padding:15px 30px;border:none;border-radius:10px;font-size:18px;cursor:pointer;text-decoration:none;}
+.btn:hover {background:white;color:red;}
 </style>
 </head>
 <body>
-<div id="container">
-<h2>Key Generator</h2>
-<button id="genKey">Tạo Key</button>
-<button id="copyKey">Sao chép Key</button>
-<div id="keyDisplay"></div>
-</div>
+<h1>Phong Hub Key System</h1>
+<!-- Nút dẫn tới link vượt -->
+<a href="checkpoint.html" class="btn">Get Key</a>
 
-<script>
-function hash16(str){
-    let hash = 0;
-    for(let i=0;i<str.length;i++){
-        hash = ((hash << 5) - hash + str.charCodeAt(i)) >>> 0;
-    }
-    return hash.toString(16).slice(0,16);
-}
-
-function generateKey(){
-    let device = localStorage.getItem("deviceID");
-    if(!device){
-        device = "dev"+Math.floor(Math.random()*1e8);
-        localStorage.setItem("deviceID", device);
-    }
-    let today = new Date();
-    let date = today.getFullYear()+"-"+(today.getMonth()+1)+"-"+today.getDate();
-    return hash16(device + date);
-}
-
-document.getElementById("genKey").onclick = function(){
-    let key = generateKey();
-    let expire = new Date();
-    expire.setHours(expire.getHours()+24);
-    localStorage.setItem("myKey", key);
-    localStorage.setItem("myKeyExpire", expire.toISOString());
-    document.getElementById("keyDisplay").innerText = "Key của bạn: "+key+"\nHết hạn: "+expire.toLocaleString();
-    document.getElementById("copyKey").style.display="inline-block";
-}
-
-document.getElementById("copyKey").onclick = function(){
-    let key = localStorage.getItem("myKey");
-    if(key){
-        navigator.clipboard.writeText(key);
-        alert("Key đã được sao chép!");
-    }
-}
-</script>
+<!-- Nếu muốn, có thể thêm link bypass trực tiếp -->
+<a href="YOUR_LINK_HERE" class="btn" target="_blank" style="margin-top:10px;">Bypass Link</a>
 </body>
 </html>
