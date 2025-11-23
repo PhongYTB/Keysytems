@@ -18,41 +18,30 @@ h1 {color:red;margin-bottom:20px;}
 <button class="btn" id="continueBtn" style="display:none;" onclick="goKey()">Continue</button>
 
 <script>
-// Sinh ID riêng nếu chưa có
 let urlParams = new URLSearchParams(window.location.search);
 let id = urlParams.get('id');
 if(!id){
-    id = 'id_' + Date.now() + '_' + Math.floor(Math.random()*1000);
-    window.history.replaceState({}, '', '?id=' + id);
-}
-
-// Lấy checkpointTime từ localStorage
-const checkpointTime = localStorage.getItem('checkpoint_' + id);
-const now = Date.now();
-
-if(!checkpointTime){
-    // Chưa có → hiển thị Continue
-    document.getElementById('message').innerText = "Checkpoint ready!";
-    document.getElementById('continueBtn').style.display = "inline-block";
-} else if(now - checkpointTime < 5*60*1000){
-    document.getElementById('message').innerText = "Checkpoint ready!";
-    document.getElementById('continueBtn').style.display = "inline-block";
+    document.body.innerHTML = "<h1>Anti Cheat from Phong</h1>";
 } else {
-    // Hết hạn
-    document.getElementById('message').innerText = "Anti Cheat from Phong";
-    document.getElementById('continueBtn').style.display = "none";
-}
+    const checkpointTime = localStorage.getItem('checkpoint_' + id);
+    const now = Date.now();
 
-// Khi nhấn Continue → lưu thời gian và chuyển sang key.html
-function goKey(){
-    localStorage.setItem('checkpoint_' + id, Date.now());
-    window.location.href = "key.html?id=" + id;
-}
+    if(!checkpointTime || now - checkpointTime < 5*60*1000){
+        document.getElementById('message').innerText = "Checkpoint ready!";
+        document.getElementById('continueBtn').style.display = "inline-block";
+    } else {
+        document.getElementById('message').innerText = "Anti Cheat from Phong";
+    }
 
-// Tự động xoá dữ liệu checkpoint sau 5 phút
-setTimeout(() => {
-    localStorage.removeItem('checkpoint_' + id);
-}, 5*60*1000);
+    function goKey(){
+        localStorage.setItem('checkpoint_' + id, Date.now());
+        window.location.href = "key.html?id=" + id;
+    }
+
+    setTimeout(() => {
+        localStorage.removeItem('checkpoint_' + id);
+    }, 5*60*1000);
+}
 </script>
 </body>
 </html>
