@@ -5,21 +5,21 @@
 <title>Key</title>
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background: #111;
-  color: #fff;
+  margin: 0;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  margin: 0;
+  background: #111;
+  color: #fff;
+  font-family: Arial;
 }
 .box {
   background: #1c1c1c;
   padding: 20px;
   border-radius: 8px;
   text-align: center;
-  width: 300px;
+  width: 280px;
 }
 .code {
   margin: 15px 0;
@@ -29,52 +29,52 @@ body {
   user-select: none;
 }
 button {
-  padding: 10px;
   width: 100%;
+  padding: 10px;
   border: none;
   border-radius: 5px;
   background: #00c853;
   color: #000;
-  font-size: 16px;
+  font-size: 15px;
 }
 </style>
 </head>
 <body>
 
-<div class="box" id="main">
+<div class="box">
   <div>You code is</div>
   <div class="code" id="code">Loading</div>
   <button onclick="copyKey()">Copy</button>
 </div>
 
 <script>
-if (sessionStorage.getItem("used")) {
-  document.body.innerHTML = "<div style='color:white'>Vui lòng vượt lại link mới</div>";
-  setTimeout(() => {
-    location.href = "https://phongytb.github.io/Mission/";
-  }, 3000);
-}
+history.replaceState(null, "", location.pathname)
 
 fetch("keys.json")
-.then(res => res.json())
-.then(data => {
-  const keys = data.keys;
-  const randomKey = keys[Math.floor(Math.random() * keys.length)];
-  document.getElementById("code").innerText = randomKey;
-});
+.then(r => r.json())
+.then(d => {
+  const k = d.keys
+  document.getElementById("code").innerText = k[Math.floor(Math.random() * k.length)]
+})
 
 function copyKey() {
-  const text = document.getElementById("code").innerText;
-  navigator.clipboard.writeText(text);
-  sessionStorage.setItem("used", "1");
+  const key = document.getElementById("code").innerText
+  navigator.clipboard.writeText(key)
 
-  history.replaceState(null, "", " ");
-  window.open("", "_self");
-  window.close();
+  history.replaceState(null, "", "https://google.com")
+  location.replace("https://google.com")
+}
 
-  setTimeout(() => {
-    location.href = "about:blank";
-  }, 100);
+window.onpageshow = function(e) {
+  if (e.persisted) {
+    window.close()
+    location.replace("about:blank")
+  }
+}
+
+window.onpopstate = function() {
+  window.close()
+  location.replace("about:blank")
 }
 </script>
 
