@@ -1,210 +1,82 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Phong Hub Key</title>
+<meta charset="UTF-8">
+<title>Key</title>
 <style>
-  :root{--bg:#000;--card:#1a0000;--accent:red;--text:#fff}
-  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif}
-  .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{width:100%;max-width:420px;background:var(--card);border-radius:12px;padding:20px;box-shadow:0 6px 24px rgba(255,0,0,0.08);border:1px solid rgba(255,0,0,0.12);text-align:center}
-  h1{margin:0 0 12px;color:var(--accent);font-size:20px}
-  .keybox{background:#2a0000;padding:14px;border-radius:10px;color:var(--text);font-weight:600;word-break:break-word}
-  .meta{margin-top:12px;font-size:14px;color:#f0dcdc}
-  .count{font-weight:700;margin-top:8px}
-  .btn{margin-top:14px;padding:10px 16px;border-radius:8px;border:0;cursor:pointer;font-weight:600}
-  .btn-copy{background:var(--accent);color:#fff}
-  .btn-get{background:#fff;color:var(--accent);border:2px solid var(--accent)}
-  .pls{color:#ff6666;font-weight:700;font-size:18px}
-  .small{font-size:13px;color:#e6cfcf;margin-top:8px}
-  a.linkroot{display:inline-block;margin-top:12px;color:#fff;text-decoration:none;background:transparent;border:0;padding:8px 0}
-  @media (max-width:420px){.card{padding:16px}}
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+.box {
+  background: #1c1c1c;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+}
+.code {
+  margin: 15px 0;
+  padding: 10px;
+  background: #000;
+  border-radius: 5px;
+  user-select: none;
+}
+button {
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 5px;
+  background: #00c853;
+  color: #000;
+  font-size: 16px;
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="card" id="card">
-    <h1>Phong Hub Key System</h1>
 
-    <div id="content">
-      <!-- dynamic -->
-      <div id="loading">Loading...</div>
-    </div>
-
-  </div>
+<div class="box" id="main">
+  <div>You code is</div>
+  <div class="code" id="code">Loading</div>
+  <button onclick="copyKey()">Copy</button>
 </div>
 
 <script>
-(function(){
-  const KEY_META_PREFIX = 'key_meta_';   // stores { key, createdAt }
-  const ID_ACTIVE_PREFIX = 'id_active_'; // stores timestamp when id became active
-  const ID_ACTIVE_MS = 3 * 60 * 1000;    // 3 minutes
-  const KEY_LIFETIME_MS = 24 * 60 * 60 * 1000; // 24 hours
+if (sessionStorage.getItem("used")) {
+  document.body.innerHTML = "<div style='color:white'>Vui lòng vượt lại link mới</div>";
+  setTimeout(() => {
+    location.href = "https://phongytb.github.io/Mission/";
+  }, 3000);
+}
 
-  // helper generate id
-  function genId(){
-    return 'id_' + Math.random().toString(36).slice(2,9);
-  }
-  // format remaining ms to h m s
-  function fmtRemaining(ms){
-    if(ms <= 0) return '0h 0m 0s';
-    const s = Math.floor(ms / 1000);
-    const h = Math.floor(s / 3600);
-    const m = Math.floor((s % 3600) / 60);
-    const sec = s % 60;
-    return `${h}h ${m}m ${sec}s`;
-  }
+fetch("keys.json")
+.then(res => res.json())
+.then(data => {
+  const keys = data.keys;
+  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  document.getElementById("code").innerText = randomKey;
+});
 
-  // get id from url
-  const params = new URLSearchParams(location.search);
-  let id = params.get('id');
+function copyKey() {
+  const text = document.getElementById("code").innerText;
+  navigator.clipboard.writeText(text);
+  sessionStorage.setItem("used", "1");
 
-  // if no id in url, create one and update URL (without reload)
-  if(!id){
-    id = genId();
-    const newUrl = location.pathname + '?id=' + id;
-    history.replaceState(null, '', newUrl);
-  }
+  history.replaceState(null, "", " ");
+  window.open("", "_self");
+  window.close();
 
-  const card = document.getElementById('card');
-  const content = document.getElementById('content');
-
-  // load keys.json and then handle logic
-  fetch('keys.json')
-  .then(r => r.ok ? r.json() : Promise.reject('keys.json load failed'))
-  .then(json => {
-    // keys.json expected { "keys": [ ... ] } or array; handle both
-    const keys = Array.isArray(json) ? json : (json.keys || []);
-    if(!keys.length){
-      content.innerHTML = '<div class="pls">No keys available</div>';
-      return;
-    }
-
-    const metaKey = KEY_META_PREFIX + id;
-    const activeKey = ID_ACTIVE_PREFIX + id;
-    let metaRaw = localStorage.getItem(metaKey);
-    let activeRaw = localStorage.getItem(activeKey);
-    const now = Date.now();
-
-    // If meta exists but older than 24h erase it (expired)
-    if(metaRaw){
-      try{
-        const meta = JSON.parse(metaRaw);
-        if(!meta || !meta.createdAt || (now - meta.createdAt) > KEY_LIFETIME_MS){
-          localStorage.removeItem(metaKey);
-          metaRaw = null;
-        }
-      }catch(e){
-        localStorage.removeItem(metaKey);
-        metaRaw = null;
-      }
-    }
-
-    // If there is no meta (first time for this id), create meta and set active
-    if(!metaRaw){
-      const chosen = keys[Math.floor(Math.random() * keys.length)];
-      const meta = { key: chosen, createdAt: now };
-      try{ localStorage.setItem(metaKey, JSON.stringify(meta)) }catch(e){}
-      localStorage.setItem(activeKey, String(now));
-      activeRaw = String(now);
-    } else {
-      // meta exists: ensure active flag exists; if not, it's considered inactive
-      if(!activeRaw){
-        // meta exists but id is not active -> user must get new id -> show PLS GET KEY
-        renderPlsGetKey();
-        return;
-      } else {
-        // check if active expired
-        const activeTs = Number(activeRaw);
-        if(now - activeTs > ID_ACTIVE_MS){
-          // expire active: remove active flag
-          localStorage.removeItem(activeKey);
-          renderPlsGetKey();
-          return;
-        }
-      }
-    }
-
-    // From here meta exists and active exists and active not expired -> show key and countdown
-    const meta = JSON.parse(localStorage.getItem(metaKey));
-    showKey(meta);
-
-    // schedule id_active removal in remaining time
-    const activeTs2 = Number(localStorage.getItem(activeKey) || 0);
-    const remainingActive = (activeTs2 + ID_ACTIVE_MS) - now;
-    if(remainingActive > 0){
-      setTimeout(() => {
-        try{ localStorage.removeItem(activeKey) }catch(e){}
-        // if user still on page, switch to PLS GET KEY view
-        renderPlsGetKey();
-      }, remainingActive + 50);
-    } else {
-      // expired already
-      localStorage.removeItem(activeKey);
-      renderPlsGetKey();
-    }
-
-    // also schedule key_meta auto-clean after 24h from its createdAt (optional)
-    const expireKeyAt = meta.createdAt + KEY_LIFETIME_MS;
-    const rmIn = expireKeyAt - now;
-    if(rmIn > 0){
-      setTimeout(()=> {
-        try{ localStorage.removeItem(metaKey) }catch(e){}
-      }, rmIn + 200);
-    } else {
-      // expired; just remove
-      try{ localStorage.removeItem(metaKey) }catch(e){}
-    }
-
-
-    // render functions
-    function showKey(meta){
-      const end24 = meta.createdAt + KEY_LIFETIME_MS;
-      content.innerHTML = `
-        <div class="keybox" id="theKey">${meta.key}</div>
-        <div class="meta">Key assigned at: ${new Date(meta.createdAt).toLocaleString()}</div>
-        <div class="count" id="countdown">${fmtRemaining(end24 - Date.now())}</div>
-        <div class="small">Key will be valid 24 hours from assignment</div>
-        <div>
-          <button class="btn btn-copy" id="btnCopy">Copy Key</button>
-        </div>
-      `;
-      document.getElementById('btnCopy').addEventListener('click', () => {
-        navigator.clipboard.writeText(meta.key).then(()=> {
-          alert('Copied: ' + meta.key);
-        }).catch(()=> alert('Copy failed'));
-      });
-
-      // update countdown per second
-      const interval = setInterval(()=>{
-        const rem = end24 - Date.now();
-        const countdownEl = document.getElementById('countdown');
-        if(!countdownEl){ clearInterval(interval); return; }
-        if(rem <= 0){
-          countdownEl.textContent = 'Expired';
-          clearInterval(interval);
-        } else {
-          countdownEl.textContent = fmtRemaining(rem);
-        }
-      }, 1000);
-    }
-
-    function renderPlsGetKey(){
-      content.innerHTML = `
-        <div class="pls">PLS GET KEY</div>
-        <div class="small" style="margin-top:8px">This id is not active. Please go back to the main get key page to create a new id.</div>
-        <a class="linkroot" href="index.html">Go to Get Key</a>
-      `;
-    }
-
-  })
-  .catch(err => {
-    document.getElementById('content').innerHTML = '<div class="pls">Error loading keys.json</div>';
-    console.error(err);
-  });
-
-})();
+  setTimeout(() => {
+    location.href = "about:blank";
+  }, 100);
+}
 </script>
+
 </body>
-    </html>
+</html>
